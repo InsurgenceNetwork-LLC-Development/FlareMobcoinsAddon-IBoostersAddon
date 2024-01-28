@@ -4,28 +4,27 @@ import net.devtm.tmmobcoins.API.MobCoinReceiveEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.insurgencedev.insurgenceboosters.api.IBoosterAPI;
-import org.insurgencedev.insurgenceboosters.models.booster.GlobalBoosterManager;
-import org.insurgencedev.insurgenceboosters.settings.IBoostersPlayerCache;
+import org.insurgencedev.insurgenceboosters.data.BoosterFindResult;
 
 public final class FlareMobCoinEventListener implements Listener {
 
     @EventHandler
     public void onReceive(MobCoinReceiveEvent event) {
-        String type = "Mobcoins";
+        final String TYPE = "Mobcoins";
         final String NAMESPACE = "FLARE_MOBCOINS";
-        double totalMulti = 1;
+        final double[] totalMulti = {1};
 
-        IBoostersPlayerCache.BoosterFindResult pResult = IBoosterAPI.getCache(event.getPlayer()).findActiveBooster(type, NAMESPACE);
-        if (pResult instanceof IBoostersPlayerCache.BoosterFindResult.Success boosterResult) {
-            totalMulti += boosterResult.getBooster().getMultiplier();
+        BoosterFindResult pResult = IBoosterAPI.INSTANCE.getCache(event.getPlayer()).getBoosterDataManager().findActiveBooster(TYPE, NAMESPACE);
+        if (pResult instanceof BoosterFindResult.Success boosterResult) {
+            totalMulti[0] += boosterResult.getBoosterData().getMultiplier();
         }
 
-        GlobalBoosterManager.BoosterFindResult gResult = IBoosterAPI.getGlobalBoosterManager().findBooster(type, NAMESPACE);
-        if (gResult instanceof GlobalBoosterManager.BoosterFindResult.Success boosterResult) {
-            totalMulti += boosterResult.getBooster().getMultiplier();
-        }
+        IBoosterAPI.INSTANCE.getGlobalBoosterManager().findGlobalBooster(TYPE, NAMESPACE, globalBooster -> {
+            totalMulti[0] += globalBooster.getMultiplier();
+            return null;
+        }, () -> null);
 
-        event.setDropAmount(calculateAmount(event.getObtainedAmount(), totalMulti));
+        event.setDropAmount(calculateAmount(event.getObtainedAmount(), totalMulti[0]));
     }
 
     private long calculateAmount(double amount, double multi) {
