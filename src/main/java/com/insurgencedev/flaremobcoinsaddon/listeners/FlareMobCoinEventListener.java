@@ -12,7 +12,7 @@ public final class FlareMobCoinEventListener implements Listener {
     public void onReceive(MobCoinReceiveEvent event) {
         final String TYPE = "Mobcoins";
         final String NAMESPACE = "FLARE_MOBCOINS";
-        final double[] totalMulti = {1};
+        final double[] totalMulti = {0};
 
         BoosterFindResult pResult = IBoosterAPI.INSTANCE.getCache(event.getPlayer()).getBoosterDataManager().findActiveBooster(TYPE, NAMESPACE);
         if (pResult instanceof BoosterFindResult.Success boosterResult) {
@@ -24,7 +24,9 @@ public final class FlareMobCoinEventListener implements Listener {
             return null;
         }, () -> null);
 
-        event.setDropAmount(calculateAmount(event.getObtainedAmount(), totalMulti[0]));
+        if (totalMulti[0] > 0) {
+            event.setDropAmount(calculateAmount(event.getObtainedAmount(), totalMulti[0]));
+        }
     }
 
     private long calculateAmount(double amount, double multi) {
