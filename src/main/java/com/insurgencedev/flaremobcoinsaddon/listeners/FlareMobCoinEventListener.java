@@ -30,6 +30,6 @@ public final class FlareMobCoinEventListener implements Listener {
     }
 
     private double calculateAmount(double amount, double multi) {
-        return amount * (multi < 1 ? 1 + multi : multi);
+        return amount * (multi <= 1 ? 1 + multi : multi);
     }
 }
